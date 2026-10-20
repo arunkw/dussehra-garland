@@ -1,0 +1,69 @@
+name: Publish web app (GitHub Pages)
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check for generated images
+        id: assets
+        run: |
+          if [ -f web/og-image.png ] && [ -f web/icons/icon-512.png ] && [ -f desktop/garland.ico ]; then
+            echo "missing=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "missing=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: actions/setup-python@v5
+        if: steps.assets.outputs.missing == 'true'
+        with:
+          python-version: "3.12"
+
+      - name: Generate icons and link-preview image from code
+        if: steps.assets.outputs.missing == 'true'
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq libegl1 libgl1 libxkbcommon0 libfontconfig1 libdbus-1-3 fonts-dejavu-core
+          python -m pip install -q PySide6 numpy pillow playwright
+          python -m playwright install --with-deps chromium
+          python tools/make_assets.py
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add web/og-image.png web/icons desktop/garland.ico
+          git commit -m "Generate icons and link-preview image"
+          git push
+
+      - name: Stamp the site address into link previews and the share button
+        run: |
+          OWNER="${GITHUB_REPOSITORY_OWNER,,}"
+          REPO="${GITHUB_REPOSITORY#*/}"
+          SITE="https://${OWNER}.github.io/${REPO}/"
+          mkdir _site
+          cp -r web/* _site/
+          sed -i "s#__SITE_URL__#${SITE}#g; s#__REPO_URL__#https://github.com/${GITHUB_REPOSITORY}#g" _site/index.html
+          echo "Site: ${SITE}"
+
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+      - id: deployment
+        uses: actions/deploy-pages@v4
