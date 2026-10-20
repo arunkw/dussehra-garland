@@ -1,0 +1,766 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="description" content="A marigold toran for your screen. Brush the garland, pluck a genda phool and watch it fall, and write your own Dussehra greeting on the tag.">
+<meta name="theme-color" content="#170f2b">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="icons/favicon.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Garland">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Dussehra Garland: pluck a genda phool">
+<meta property="og:description" content="Brush the marigold garland, pluck a flower and watch it fall. Write your own greeting on the tag and share it.">
+<meta property="og:url" content="__SITE_URL__">
+<meta property="og:image" content="__SITE_URL__og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Dussehra Garland: pluck a genda phool">
+<meta name="twitter:description" content="Brush the marigold garland, pluck a flower and watch it fall. Write your own greeting on the tag.">
+<meta name="twitter:image" content="__SITE_URL__og-image.png">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}</style>
+<title>Dussehra Garland</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Mukta:wght@400;600&family=Tiro+Devanagari+Hindi:ital@0;1&display=swap">
+<style>
+/* Layout: a doorway at dusk. The toran hangs from the top edge, the threshold is the floor, controls float just above it. */
+:root {
+  --dusk-top: #170f2b;
+  --dusk-mid: #33163a;
+  --dusk-low: #6b2a22;
+  --threshold: #7a2e18;
+  --threshold-hi: #b2532a;
+  --chalk: #f3d9a4;
+  --text: #f6e7cf;
+  --muted: rgba(246, 231, 207, 0.66);
+  --marigold: #f29a1d;
+  --panel: rgba(26, 14, 34, 0.78);
+  --paper: #fbf1d9;
+  --ink: #3a1610;
+  --font-ui: "Mukta", "Segoe UI", system-ui, sans-serif;
+  --font-tag: "Tiro Devanagari Hindi", Georgia, "Nirmala UI", serif;
+  --floor-h: 22px;
+  color-scheme: dark;
+}
+[hidden] { display: none !important; }
+html, body { height: 100%; overflow: hidden; overscroll-behavior: none; }
+body {
+  background:
+    radial-gradient(120% 70% at 50% 108%, var(--dusk-low) 0%, rgba(107, 42, 34, 0) 62%),
+    linear-gradient(180deg, var(--dusk-top) 0%, var(--dusk-mid) 58%, #4a1d33 100%);
+  background-color: var(--dusk-top);
+  color: var(--text);
+  font-family: var(--font-ui);
+  -webkit-user-select: none; user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+#stage { position: fixed; inset: 0; width: 100%; height: 100%; touch-action: none; display: block; z-index: 1; }
+#floor {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 0;
+  height: calc(var(--floor-h) + env(safe-area-inset-bottom, 0px));
+  background:
+    radial-gradient(circle at 50% 55%, var(--chalk) 0 1.6px, transparent 2.2px) 0 0 / 18px 100% repeat-x,
+    linear-gradient(180deg, var(--threshold-hi) 0 2px, var(--threshold) 2px 100%);
+}
+#safe-probe { position: fixed; bottom: 0; height: env(safe-area-inset-bottom, 0px); width: 0; visibility: hidden; }
+#hint {
+  position: fixed; left: 0; right: 0; top: 46%; z-index: 2; pointer-events: none;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  text-align: center; transition: opacity 0.8s ease;
+}
+#hint p { margin: 0 auto; max-width: 30ch; font-size: 1.05rem; line-height: 1.5; color: var(--muted); text-wrap: balance; }
+#hint p strong { color: var(--chalk); font-weight: 600; }
+#hint.gone { opacity: 0; }
+#bar {
+  position: fixed; left: 0; right: 0; z-index: 3;
+  bottom: calc(var(--floor-h) + env(safe-area-inset-bottom, 0px) + 64px);
+  display: flex; justify-content: center; pointer-events: none;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+#bar .pill {
+  pointer-events: auto; display: flex; flex-wrap: wrap; justify-content: center; gap: 4px;
+  padding: 5px; border-radius: 999px; background: var(--panel);
+  border: 1px solid rgba(243, 217, 164, 0.18);
+  backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+}
+button {
+  font: 600 0.92rem/1 var(--font-ui); color: var(--text); background: transparent;
+  border: 0; border-radius: 999px; padding: 10px 15px; cursor: pointer; letter-spacing: 0.01em;
+}
+button:hover { background: rgba(243, 217, 164, 0.12); }
+button:focus-visible { outline: 2px solid var(--marigold); outline-offset: 2px; }
+button.primary { background: var(--marigold); color: #2a1206; }
+button.primary:hover { background: #ffb13a; }
+#credit {
+  position: fixed; z-index: 3; right: 0; bottom: calc(var(--floor-h) + env(safe-area-inset-bottom, 0px) + 36px);
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  font-size: 0.78rem; color: var(--muted);
+}
+#credit a { color: var(--chalk); text-decoration: none; border-bottom: 1px solid rgba(243, 217, 164, 0.35); }
+#editor {
+  position: fixed; inset: 0; z-index: 10; display: grid; place-items: center;
+  background: rgba(10, 5, 16, 0.6);
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+#editor form {
+  width: min(100%, 380px); background: var(--paper); color: var(--ink);
+  border-radius: 6px; padding: 18px; display: grid; gap: 10px;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45);
+}
+#editor label { font: 600 0.95rem var(--font-ui); }
+#editor small { color: #7a5a44; font-size: 0.8rem; }
+#editor textarea {
+  font: 1.05rem/1.4 var(--font-tag); color: var(--ink); background: #fffaf0;
+  border: 1px solid #d9c09a; border-radius: 4px; padding: 10px; resize: none; height: 92px;
+}
+#editor textarea:focus-visible { outline: 2px solid var(--marigold); }
+#editor .row { display: flex; justify-content: flex-end; gap: 8px; flex-wrap: wrap; }
+#editor button { color: var(--ink); }
+#editor button:hover { background: rgba(122, 46, 24, 0.1); }
+#editor button.primary { color: #2a1206; }
+#toast {
+  position: fixed; left: 50%; transform: translateX(-50%); z-index: 11;
+  bottom: calc(var(--floor-h) + env(safe-area-inset-bottom, 0px) + 122px);
+  background: var(--paper); color: var(--ink); font: 600 0.9rem var(--font-ui);
+  padding: 9px 16px; border-radius: 999px; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  max-width: calc(100% - 32px); text-align: center;
+}
+@media (prefers-reduced-motion: reduce) { #hint { transition: none; } }
+</style>
+
+</head>
+<body>
+<canvas id="stage" aria-label="Marigold garland. Move over it to sway the flowers, tap a flower to pluck it."></canvas>
+<div id="floor" aria-hidden="true"></div>
+<div id="safe-probe" aria-hidden="true"></div>
+<div id="hint"><p><strong>Brush the garland</strong> to sway it. <strong>Tap a genda phool</strong> to pluck it and watch it fall. Double-tap the tag to write your own greeting.</p></div>
+<div id="bar"><div class="pill">
+  <button id="btn-edit" type="button">Edit tag</button>
+  <button id="btn-share" type="button" class="primary">Share</button>
+  <button id="btn-restring" type="button">Re-string</button>
+  <button id="btn-install" type="button" hidden>Install app</button>
+</div></div>
+<div id="credit">Doneology Labs<span id="repo-link"></span></div>
+<div id="editor" hidden>
+  <form id="editor-form" autocomplete="off">
+    <label for="tag-text">Text on the paper tag</label>
+    <textarea id="tag-text" maxlength="90" spellcheck="false"></textarea>
+    <small>First line becomes the heading. Hindi and Marathi work too.</small>
+    <div class="row">
+      <button type="button" id="btn-reset-text">Default</button>
+      <button type="button" id="btn-cancel">Cancel</button>
+      <button type="submit" class="primary" id="btn-save">Hang it</button>
+    </div>
+  </form>
+</div>
+<div id="toast" role="status" hidden></div>
+
+<script>
+(() => {
+"use strict";
+const DEFAULT_TEXT = "Happy Dussehra\nfrom Doneology Labs";
+const STAMPED_SITE = "__SITE_URL__";   // replaced by the GitHub Pages workflow
+const STAMPED_REPO = "__REPO_URL__";
+
+// ------------------------------------------------------------------ helpers
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+function rngFrom(seed) {               // mulberry32
+  let t = seed >>> 0;
+  const r = () => { t += 0x6D2B79F5; let x = t; x = Math.imul(x ^ (x >>> 15), x | 1);
+    x ^= x + Math.imul(x ^ (x >>> 7), x | 61); return ((x ^ (x >>> 14)) >>> 0) / 4294967296; };
+  r.u = (a, b) => a + (b - a) * r();
+  return r;
+}
+const rgb = (c, a = 1) => `rgba(${c[0] | 0},${c[1] | 0},${c[2] | 0},${a})`;
+const shade = (c, f) => c.map(v => clamp(v * f, 0, 255));
+const mix = (a, b, t) => a.map((v, i) => v + (b[i] - v) * t);
+const ls = { get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
+             set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} } };
+
+// ------------------------------------------------------------------ sprites
+const ORANGE = { deep: [150, 45, 0], outer: [205, 72, 4], mid: [238, 110, 12], inner: [255, 148, 34] };
+const YELLOW = { deep: [165, 100, 0], outer: [220, 148, 0], mid: [246, 188, 14], inner: [255, 216, 68] };
+const mix3 = (p, t) => t < 0.5 ? mix(p.outer, p.mid, t * 2) : mix(p.mid, p.inner, (t - 0.5) * 2);
+
+function newCanvas(w, h) {
+  const c = document.createElement("canvas");
+  c.width = Math.max(1, Math.ceil(w * DPR)); c.height = Math.max(1, Math.ceil(h * DPR));
+  c.lw = w; c.lh = h;
+  const x = c.getContext("2d"); x.scale(DPR, DPR);
+  return [c, x];
+}
+function drawPetal(x, px, py, ang, pw, ph, col, rng) {
+  x.save(); x.translate(px, py); x.rotate(ang);
+  x.beginPath();
+  x.moveTo(-pw * 0.35, ph * 0.4);
+  x.bezierCurveTo(-pw * 0.62, ph * 0.1, -pw * 0.62, -ph * 0.5, -pw * 0.5, -ph * 0.72);
+  for (let b = 0; b < 3; b++) {
+    const x0 = -pw * 0.5 + pw * b / 3, x1 = -pw * 0.5 + pw * (b + 1) / 3;
+    x.quadraticCurveTo((x0 + x1) / 2, -ph * (1.05 + rng.u(-0.12, 0.12)), x1, -ph * (0.72 + rng.u(-0.06, 0.06)));
+  }
+  x.bezierCurveTo(pw * 0.62, -ph * 0.5, pw * 0.62, ph * 0.1, pw * 0.35, ph * 0.4);
+  x.closePath();
+  const g = x.createLinearGradient(0, ph * 0.4, 0, -ph);
+  g.addColorStop(0, rgb(shade(col, 1 / 1.4))); g.addColorStop(0.65, rgb(col)); g.addColorStop(1, rgb(shade(col, 1.14)));
+  x.fillStyle = g; x.fill();
+  x.lineWidth = 0.5; x.strokeStyle = rgb(shade(col, 1 / 1.55), 0.67); x.stroke();
+  x.restore();
+}
+function makeMarigold(Rr, pal, seed) {
+  const rng = rngFrom(seed), half = Rr * 1.12 + 2;
+  const [c, x] = newCanvas(half * 2, half * 2);
+  x.fillStyle = rgb(pal.deep); x.beginPath(); x.arc(half, half, Rr * 0.93, 0, 7); x.fill();
+  const rings = 9;
+  for (let k = 0; k < rings; k++) {
+    const t = k / (rings - 1), rr = Rr * (0.72 - 0.66 * t), pw = Rr * (0.46 - 0.22 * t), ph = Rr * (0.34 - 0.14 * t);
+    const n = Math.max(4, Math.floor(2 * Math.PI * Math.max(rr, Rr * 0.12) / (pw * 0.5)));
+    const off = rng() * 6.283;
+    for (let i = 0; i < n; i++) {
+      const a = off + 6.283 * i / n + rng.u(-0.15, 0.15), r = Math.max(0, rr + rng.u(-0.05, 0.05) * Rr);
+      const tc = clamp(t + rng.u(-0.15, 0.15), 0, 1);
+      drawPetal(x, half + Math.cos(a) * r, half + Math.sin(a) * r, a + Math.PI / 2 + rng.u(-0.52, 0.52),
+        pw * rng.u(0.85, 1.15), ph * rng.u(0.85, 1.15), mix3(pal, tc), rng);
+    }
+  }
+  const g = x.createRadialGradient(half - Rr * 0.35, half - Rr * 0.42, 0, half - Rr * 0.35, half - Rr * 0.42, Rr * 1.55);
+  g.addColorStop(0, "rgba(255,250,210,0.27)"); g.addColorStop(0.45, "rgba(255,255,255,0)"); g.addColorStop(1, "rgba(70,15,0,0.5)");
+  x.globalCompositeOperation = "source-atop"; x.fillStyle = g; x.fillRect(0, 0, half * 2, half * 2);
+  return { c, ox: half, oy: half };
+}
+function makeLeaf(L, Wd, seed) {
+  const rng = rngFrom(seed), pad = 2, h = Wd + pad * 2;
+  const [c, x] = newCanvas(L + pad * 2, h);
+  x.translate(pad, h / 2);
+  x.beginPath(); x.moveTo(0, 0);
+  x.bezierCurveTo(L * 0.25, -Wd * 0.62, L * 0.68, -Wd * 0.52, L, 0);
+  x.bezierCurveTo(L * 0.68, Wd * 0.52, L * 0.25, Wd * 0.62, 0, 0);
+  const sh = rng.u(-12, 12), dark = [26 + sh / 2, 92 + sh, 34], light = [76 + sh / 2, 152 + sh, 58];
+  const g = x.createLinearGradient(0, -Wd / 2, 0, Wd / 2);
+  g.addColorStop(0, rgb(dark)); g.addColorStop(0.45, rgb(light)); g.addColorStop(1, rgb(shade(dark, 0.87)));
+  x.fillStyle = g; x.fill(); x.lineWidth = 0.7; x.strokeStyle = "rgb(18,64,24)"; x.stroke();
+  x.strokeStyle = "rgba(190,225,150,0.67)"; x.lineWidth = 0.8;
+  x.beginPath(); x.moveTo(0, 0); x.lineTo(L * 0.93, 0); x.stroke();
+  x.strokeStyle = "rgba(190,225,150,0.35)"; x.lineWidth = 0.5; x.beginPath();
+  for (let i = 1; i < 7; i++) { const vx = L * i / 7.5;
+    x.moveTo(vx, 0); x.lineTo(vx + L * 0.08, -Wd * 0.3); x.moveTo(vx, 0); x.lineTo(vx + L * 0.08, Wd * 0.3); }
+  x.stroke();
+  return { c, ox: pad, oy: h / 2 };
+}
+function makePetal(size, pal, seed) {
+  const rng = rngFrom(seed);
+  const [c, x] = newCanvas(size * 2, size * 2);
+  drawPetal(x, size, size + size * 0.25, 0, size * 1.1, size * 0.9, mix3(pal, rng.u(0.2, 0.9)), rng);
+  return { c, ox: size, oy: size };
+}
+function wrapLines(x, text, maxW) {
+  const words = text.split(/\s+/).filter(Boolean), out = []; let cur = "";
+  for (const w of words) { const t = cur ? cur + " " + w : w;
+    if (!cur || x.measureText(t).width <= maxW) cur = t; else { out.push(cur); cur = w; } }
+  if (cur) out.push(cur);
+  return out;
+}
+function makeTag(text, ts) {
+  const TW = 172 * ts, TH = 106 * ts, holeY = 15 * ts, ch = 22 * ts, pad = 5 * ts;
+  const [c, x] = newCanvas(TW + pad * 2, TH + pad * 2);
+  x.translate(pad, pad);
+  const shape = () => { x.beginPath(); x.moveTo(ch, 0); x.lineTo(TW - ch, 0); x.lineTo(TW, ch); x.lineTo(TW, TH); x.lineTo(0, TH); x.lineTo(0, ch); x.closePath(); };
+  x.save(); x.translate(2.5 * ts, 3.5 * ts); shape(); x.fillStyle = "rgba(20,8,0,0.35)"; x.fill(); x.restore();
+  shape();
+  const g = x.createLinearGradient(0, 0, TW, TH); g.addColorStop(0, "#fdf6e2"); g.addColorStop(1, "#f0e0be");
+  x.fillStyle = g; x.fill(); x.lineWidth = ts; x.strokeStyle = "#aa875a"; x.stroke();
+  const rng = rngFrom(7);
+  for (let i = 0; i < 140 * ts; i++) { x.fillStyle = `rgba(150,110,60,${rng.u(0.04, 0.11)})`;
+    x.beginPath(); x.ellipse(rng.u(4, TW - 4), rng.u(ch / 2 + 4, TH - 4), rng.u(0.4, 1.1) * ts, rng.u(0.4, 1.1) * ts, 0, 0, 7); x.fill(); }
+  const ins = 7 * ts;
+  x.beginPath(); x.moveTo(ch + ins * 0.4, ins); x.lineTo(TW - ch - ins * 0.4, ins); x.lineTo(TW - ins, ch + ins * 0.4);
+  x.lineTo(TW - ins, TH - ins); x.lineTo(ins, TH - ins); x.lineTo(ins, ch + ins * 0.4); x.closePath();
+  x.setLineDash([4 * ts, 3 * ts]); x.strokeStyle = "rgba(140,30,25,0.6)"; x.stroke(); x.setLineDash([]);
+  x.fillStyle = "#c4963c"; x.beginPath(); x.arc(TW / 2, holeY, 6.2 * ts, 0, 7); x.fill();
+  x.fillStyle = "#f0cd78"; x.beginPath(); x.arc(TW / 2, holeY, 4.8 * ts, 0, 7); x.fill();
+  x.globalCompositeOperation = "destination-out"; x.beginPath(); x.arc(TW / 2, holeY, 3.2 * ts, 0, 7); x.fill();
+  x.globalCompositeOperation = "source-over";
+  // text: first line is the heading, auto-fit into the box
+  const lines = (text || "").split("\n").map(l => l.trim()).filter(Boolean);
+  if (!lines.length) lines.push(" ");
+  const bx = 14 * ts, by = holeY + 11 * ts, bw = TW - 28 * ts, bh = TH - holeY - 21 * ts;
+  let plan = null;
+  for (let size = 19; size >= 7; size -= 0.5) {
+    const blocks = []; let total = 0;
+    lines.forEach((ln, i) => {
+      const px = size * ts * (i === 0 ? 1.12 : 0.86);
+      const font = `${i === 0 ? "italic " : ""}${px}px "Tiro Devanagari Hindi", Georgia, "Nirmala UI", serif`;
+      x.font = font; const wl = wrapLines(x, ln, bw); const lh = px * 1.22;
+      blocks.push({ font, wl, lh, i }); total += wl.length * lh;
+    });
+    total += (lines.length - 1) * 2 * ts;
+    plan = { blocks, total };
+    if (total <= bh) break;
+  }
+  let y = by + Math.max(0, (bh - plan.total) / 2);
+  x.textAlign = "center"; x.textBaseline = "top";
+  for (const b of plan.blocks) {
+    x.font = b.font; x.fillStyle = b.i === 0 ? "#801212" : "#5c2814";
+    for (const w of b.wl) { x.fillText(w, bx + bw / 2, y + b.lh * 0.08); y += b.lh; }
+    y += 2 * ts;
+  }
+  return { c, ox: pad + TW / 2, oy: pad + holeY, TW, TH, holeY };
+}
+
+// ------------------------------------------------------------------ world
+const FO = 0, FY = 1, LEAF = 2, TASSEL = 3, BARE = 4, ANCHOR = 5, THREAD = 6, THOLE = 7, TBOT = 8;
+const HSTEP = 1 / 120;
+const canvas = document.getElementById("stage"), ctx = canvas.getContext("2d");
+let DPR = 1, W = 0, H = 0, s = 1, R = 14, G = 1500, floorY = 0;
+let N = 0, px, py, qx, qy, wt, kind, rot, sprI, nr, spin, spinv, theta0, origKind, th;
+let cons = [], mins = [], chains = [], pins = [], tagHole = 0, tagBottom = 0;
+let spr = {}, tag = null, bodies = [], tagText = DEFAULT_TEXT, simTime = 0;
+
+function build() {
+  DPR = Math.min(window.devicePixelRatio || 1, 3);
+  W = window.innerWidth; H = window.innerHeight;
+  canvas.width = Math.round(W * DPR); canvas.height = Math.round(H * DPR);
+  s = clamp(Math.min(W, 1920) / 1500, 0.78, 1.25);
+  R = 14 * s; G = 1500 * s;
+  updateFloor();
+  spr.o = [0, 1, 2, 3, 4].map(i => makeMarigold(R * (0.94 + 0.03 * i), ORANGE, 100 + i));
+  spr.y = [0, 1, 2, 3, 4].map(i => makeMarigold(R * (0.94 + 0.03 * i), YELLOW, 200 + i));
+  spr.big = makeMarigold(R * 1.25, ORANGE, 999);
+  spr.leaf = [0, 1, 2, 3, 4].map(i => makeLeaf(R * 2.5, R * 0.85, 300 + i));
+  spr.petal = [0, 1, 2, 3].map(i => makePetal(R * 0.42, ORANGE, 400 + i)).concat([0, 1, 2, 3].map(i => makePetal(R * 0.42, YELLOW, 500 + i)));
+  rebuildTag();
+  buildGarland();
+  bodies = [];
+}
+function updateFloor() {
+  const safe = document.getElementById("safe-probe").getBoundingClientRect().height || 0;
+  floorY = H - 22 - safe;
+}
+function rebuildTag() { tag = makeTag(tagText, clamp(s * 1.05, 0.88, 1.3)); }
+
+function buildGarland() {
+  const nodes = [];
+  const add = (x, y, k, w = 1) => { nodes.push({ x, y, k, w, r: Math.random() * 6.283, sp: (Math.random() * 5) | 0 }); return nodes.length - 1; };
+  cons = []; mins = []; chains = [];
+  const spacing = R * 1.32, y0 = 12 * s;
+  const fr = W < 700 ? [0.05, 0.5, 0.95] : [0.035, 0.355, 0.645, 0.965];
+  pins = fr.map(f => add(f * W, y0, ANCHOR, 0));
+  const mainPat = [FO, FO, FO, LEAF, FY, FY, FY, LEAF], mids = [];
+  for (let k = 0; k < pins.length - 1; k++) {
+    const a = pins[k], b = pins[k + 1], ax = nodes[a].x, span = nodes[b].x - ax;
+    const n = Math.max(4, Math.round(span * 1.075 / spacing)), rest = span * 1.075 / n;
+    const chain = [a];
+    for (let i = 1; i < n; i++) chain.push(add(ax + span * i / n, y0, mainPat[(i - 1) % 8]));
+    chain.push(b);
+    for (let i = 0; i < chain.length - 1; i++) cons.push([chain[i], chain[i + 1], rest]);
+    for (let i = 0; i < chain.length - 2; i++) mins.push([chain[i], chain[i + 2], rest * 1.55]);
+    chains.push(chain); mids.push(chain[chain.length >> 1]);
+  }
+  const tall = clamp((H / W) * 0.8, 1, 1.6);
+  const strandPat = [FY, FO, FY, LEAF, FO, FY, FO, FY, LEAF, FO, FY, FO];
+  let tagRoot, strands = [];
+  if (pins.length === 4) {
+    tagRoot = mids[1];
+    strands = [[pins[0], 6], [pins[1], 8], [pins[2], 8], [pins[3], 6], [mids[0], 4], [mids[2], 4]];
+  } else {
+    tagRoot = pins[1];
+    strands = [[pins[0], 6], [pins[2], 6], [mids[0], 4], [mids[1], 4]];
+  }
+  for (const [root, n0] of strands) {
+    const n = Math.round(n0 * tall), x = nodes[root].x, y = nodes[root].y, tilt = (Math.random() * 70 - 35) * Math.PI / 180;
+    const chain = [root]; let prev = root;
+    for (let i = 0; i < n; i++) {
+      const d = spacing * (i + 1);
+      const idx = add(x + Math.sin(tilt) * d, y + Math.cos(tilt) * d, i === n - 1 ? TASSEL : strandPat[i % strandPat.length]);
+      cons.push([prev, idx, spacing]); chain.push(idx); prev = idx;
+    }
+    for (let i = 0; i < chain.length - 2; i++) mins.push([chain[i], chain[i + 2], spacing * 1.55]);
+    chains.push(chain);
+  }
+  // paper tag on a short thread
+  const ts = clamp(s * 1.05, 0.88, 1.3), seg = 13 * s, x = nodes[tagRoot].x, y = nodes[tagRoot].y;
+  const chain = [tagRoot]; let prev = tagRoot;
+  const thread = pins.length === 4 ? 3 : 5;
+  for (let i = 0; i < thread; i++) { const idx = add(x + 8 * s * (i + 1), y + seg * (i + 1), THREAD, 1.6); cons.push([prev, idx, seg]); chain.push(idx); prev = idx; }
+  tagHole = add(x + 32 * s, y + seg * (thread + 1), THOLE, 1); cons.push([prev, tagHole, seg]); chain.push(tagHole);
+  const tl = (106 - 15) * ts;
+  tagBottom = add(x + 32 * s + tl * 0.5, y + seg * (thread + 1) + tl * 0.85, TBOT, 0.45); cons.push([tagHole, tagBottom, tl]);
+  chains.push(chain);
+
+  N = nodes.length;
+  px = new Float64Array(N); py = new Float64Array(N); qx = new Float64Array(N); qy = new Float64Array(N);
+  wt = new Float64Array(N); kind = new Int8Array(N); rot = new Float64Array(N); sprI = new Int8Array(N);
+  spin = new Float64Array(N); spinv = new Float64Array(N); theta0 = new Float64Array(N); th = new Float64Array(N);
+  nodes.forEach((n, i) => { px[i] = qx[i] = n.x; py[i] = qy[i] = n.y; wt[i] = n.w; kind[i] = n.k; rot[i] = n.r; sprI[i] = n.sp; });
+  origKind = kind.slice();
+  refreshRadii();
+  for (let i = 0; i < 480; i++) step(HSTEP, null, null, null, 0.96);   // settle 4 s
+  qx.set(px); qy.set(py);
+  tangents(); theta0.set(th);
+}
+function refreshRadii() {
+  nr = new Float64Array(N);
+  for (let i = 0; i < N; i++) { const k = kind[i];
+    nr[i] = (k === FO || k === FY) ? R * 0.95 : k === LEAF ? R * 0.85 : k === TASSEL ? R * 0.9 : k === BARE ? 3 * s : 0; }
+}
+
+// ------------------------------------------------------------------ physics (Verlet + position-based constraints)
+function step(h, ax, bx, hv, damp = 0.995) {
+  for (let i = 0; i < N; i++) {
+    if (wt[i] === 0) continue;
+    let vx = (px[i] - qx[i]) * damp, vy = (py[i] - qy[i]) * damp;
+    if (i === tagBottom) { vx *= 0.986; vy *= 0.986; } else if (i === tagHole) { vx *= 0.996; vy *= 0.996; }
+    qx[i] = px[i]; qy[i] = py[i];
+    px[i] += vx; py[i] += vy + G * h * h;
+  }
+  if (ax) hand(ax, bx, hv, h);
+  for (let it = 0; it < 14; it++) {
+    solve(cons, false);
+    if (it % 4 === 3) solve(mins, true);
+  }
+  const e = Math.exp(-2.5 * h);
+  for (let i = 0; i < N; i++) { spinv[i] = (spinv[i] - spin[i] * 30 * h) * e; spin[i] += spinv[i] * h; }
+}
+function solve(list, oneSided) {
+  for (let c = 0; c < list.length; c++) {
+    const [i, j, L] = list[c];
+    const wi = wt[i], wj = wt[j], ws = wi + wj; if (ws === 0) continue;
+    const dx = px[j] - px[i], dy = py[j] - py[i], d = Math.sqrt(dx * dx + dy * dy) + 1e-9;
+    const diff = (d - L) / (d * ws);
+    if (oneSided && diff > 0) continue;
+    px[i] += dx * diff * wi; py[i] += dy * diff * wi; px[j] -= dx * diff * wj; py[j] -= dy * diff * wj;
+  }
+}
+function hand(a, b, hv, h) {
+  const abx = b[0] - a[0], aby = b[1] - a[1], ab2 = abx * abx + aby * aby, hr = handR();
+  for (let i = 0; i < N; i++) {
+    if (wt[i] === 0 || nr[i] === 0) continue;
+    let t = ab2 > 1e-9 ? clamp(((px[i] - a[0]) * abx + (py[i] - a[1]) * aby) / ab2, 0, 1) : 0;
+    const cx = a[0] + abx * t, cy = a[1] + aby * t, dx = px[i] - cx, dy = py[i] - cy;
+    const d = Math.sqrt(dx * dx + dy * dy) + 1e-9, reach = nr[i] + hr;
+    if (d >= reach) continue;
+    const nx = dx / d, ny = dy / d, depth = Math.min(reach - d, 2 * s);
+    let mx = nx * depth, my = ny * depth;
+    if (hv) {   // friction pulls the bead's velocity toward the finger's, never beyond it
+      const vbx = (px[i] - qx[i]) / h, vby = (py[i] - qy[i]) / h;
+      mx += (hv[0] - vbx) * 0.08 * h; my += (hv[1] - vby) * 0.08 * h;
+      spinv[i] += clamp((nx * hv[1] - ny * hv[0]) / R * 0.02, -2.5, 2.5);
+    }
+    px[i] += mx; py[i] += my;
+  }
+}
+function tagFrame() {
+  let ux = px[tagBottom] - px[tagHole], uy = py[tagBottom] - py[tagHole]; const L = Math.hypot(ux, uy) || 1;
+  ux /= L; uy /= L; return { hx: px[tagHole], hy: py[tagHole], ux, uy, nx: -uy, ny: ux };
+}
+function onTag(x, y) {
+  const f = tagFrame(), dx = x - f.hx, dy = y - f.hy, along = dx * f.ux + dy * f.uy, across = dx * f.nx + dy * f.ny;
+  return along >= -tag.holeY && along <= tag.TH - tag.holeY && Math.abs(across) <= tag.TW / 2;
+}
+function tagBrush(x, y, hv) {
+  if (!onTag(x, y)) return;
+  const f = tagFrame(), i = tagBottom;
+  const vbx = (px[i] - qx[i]) / HSTEP, vby = (py[i] - qy[i]) / HSTEP;
+  const rel = (hv[0] - vbx) * f.nx + (hv[1] - vby) * f.ny;
+  px[i] += f.nx * rel * 0.06 * HSTEP; py[i] += f.ny * rel * 0.06 * HSTEP;
+}
+function tangents() {
+  for (const chain of chains) {
+    const n = chain.length;
+    for (let k = 0; k < n; k++) {
+      const i = chain[k], a = chain[Math.max(0, k - 1)], b = chain[Math.min(n - 1, k + 1)];
+      const ang = Math.atan2(py[b] - py[a], px[b] - px[a]);
+      if (k > 0) th[i] = ang; else if (kind[i] === ANCHOR && th[i] === 0) th[i] = ang;
+    }
+  }
+}
+function kinetic() { let m = 0; for (let i = 0; i < N; i++) m = Math.max(m, Math.abs(px[i] - qx[i]) + Math.abs(py[i] - qy[i])); return m; }
+
+// ------------------------------------------------------------------ falling bodies
+function Body(k, x, y, vx, vy, r, sp) {
+  Object.assign(this, { k, x, y, vx, vy, r, sp, ang: Math.random() * 6.283, angv: (Math.random() - 0.5) * 7,
+    landed: false, grounded: false, life: 0, phase: Math.random() * 6.283, freq: 2.2 + Math.random() * 1.4,
+    squash: 0, leafDir: Math.random() < 0.5 ? 0 : Math.PI });
+}
+function spawnPetals(x, y, vx, vy, n) {
+  for (let i = 0; i < n; i++) bodies.push(new Body("petal", x + (Math.random() - 0.5) * 12 * s, y + (Math.random() - 0.5) * 12 * s,
+    vx * 0.5 + (Math.random() - 0.5) * 180 * s, vy * 0.5 + (Math.random() * 180 - 160) * s, 4 * s, (Math.random() * spr.petal.length) | 0));
+}
+function stepBodies(h, hx, hy, hv) {
+  const fl = [], hr = handR();
+  for (const b of bodies) {
+    if (b.k === "flower") {
+      fl.push(b);
+      b.vy += G * h; b.vx *= 1 - 0.15 * h; b.x += b.vx * h; b.y += b.vy * h; b.squash *= Math.exp(-10 * h);
+      if (b.y + b.r >= floorY) {
+        b.y = floorY - b.r;
+        if (b.vy > 70 * s) {               // soft, petal-packed ball: low restitution
+          const imp = b.vy; b.vy = -imp * 0.42; b.vx *= 0.86; b.squash = Math.min(0.28, imp / (2600 * s)); b.grounded = false;
+          if (imp > 500 * s && Math.random() < 0.6) spawnPetals(b.x, floorY - 2 * s, b.vx, -imp * 0.2, 1 + (Math.random() * 2 | 0));
+        } else { b.vy = 0; b.grounded = true; }
+        if (b.grounded) { b.vx *= Math.max(0, 1 - 2.4 * h); if (Math.abs(b.vx) < 2 * s) b.vx = 0; }
+        b.angv = b.vx / b.r;               // roll without slipping
+      } else b.grounded = false;
+      b.ang += b.angv * h;
+      if (b.x < b.r) { b.x = b.r; b.vx = Math.abs(b.vx) * 0.5; } else if (b.x > W - b.r) { b.x = W - b.r; b.vx = -Math.abs(b.vx) * 0.5; }
+      if (hx !== null) {
+        const dx = b.x - hx, dy = b.y - hy, d = Math.hypot(dx, dy);
+        if (d > 1e-6 && d < b.r + hr) {
+          const nx = dx / d, ny = dy / d; b.x += nx * (b.r + hr - d);
+          const rel = hv[0] * nx + hv[1] * ny;
+          if (rel > 0) { b.vx += nx * rel * 0.6; b.vy += Math.min(0, ny * rel * 0.6); }
+          b.grounded = false;
+        }
+      }
+    } else if (!b.landed) {                 // leaves and petals: heavy drag + flutter
+      const k = b.k === "leaf" ? 7.5 : 9, sway = Math.sin(simTime * b.freq + b.phase);
+      b.vy += G * h; b.vx += sway * 420 * s * h; b.vx -= b.vx * k * 0.6 * h; b.vy -= b.vy * k * h;
+      b.x += b.vx * h; b.y += b.vy * h;
+      b.ang = (b.k === "leaf" ? b.leafDir : b.ang + b.angv * h * 0.5) + sway * 0.7;
+      if (b.y >= floorY - b.r) { b.y = floorY - b.r; b.landed = true; if (b.k === "leaf") b.ang = b.leafDir + (Math.random() - 0.5) * 0.28; }
+      b.x = clamp(b.x, 0, W);
+    } else b.life += h;
+  }
+  if (fl.length > 1) {                       // flower-flower collisions, sweep and prune on x
+    fl.sort((a, b) => a.x - b.x);
+    for (let i = 0; i < fl.length; i++) { const a = fl[i];
+      for (let j = i + 1; j < fl.length; j++) { const c = fl[j]; if (c.x - a.x > a.r + c.r) break;
+        const dx = c.x - a.x, dy = c.y - a.y, d = Math.hypot(dx, dy), rr = a.r + c.r;
+        if (d > 1e-6 && d < rr) {
+          const nx = dx / d, ny = dy / d, ov = (rr - d) * 0.5;
+          a.x -= nx * ov; a.y -= ny * ov; c.x += nx * ov; c.y += ny * ov;
+          const rv = (c.vx - a.vx) * nx + (c.vy - a.vy) * ny;
+          if (rv < 0) { const imp = -1.3 * rv * 0.5; a.vx -= imp * nx; a.vy -= imp * ny; c.vx += imp * nx; c.vy += imp * ny; }
+          a.y = Math.min(a.y, floorY - a.r); c.y = Math.min(c.y, floorY - c.r);
+        } } }
+  }
+  bodies = bodies.filter(b => !(b.landed && ((b.k === "petal" && b.life > 14) || (b.k === "leaf" && b.life > 45))));
+  const flowers = bodies.filter(b => b.k === "flower");
+  if (flowers.length > 160) { const drop = new Set(flowers.slice(0, flowers.length - 160)); bodies = bodies.filter(b => !drop.has(b)); }
+}
+
+// ------------------------------------------------------------------ interaction
+const pointer = { x: 0, y: 0, active: false, touch: false, down: false, sx: 0, sy: 0, st: 0 };
+let handPrev = null, hv = [0, 0], lastTap = { t: 0, tag: false };
+const handR = () => (pointer.touch ? 16 : 9) * s;
+
+function tapAt(x, y) {
+  wake(); hideHint();
+  for (let k = bodies.length - 1; k >= 0; k--) { const b = bodies[k];
+    if (b.k === "flower" && Math.hypot(b.x - x, b.y - y) < b.r + 6 * s) {
+      b.vy = -(520 + Math.random() * 260) * s; b.vx += (Math.random() - 0.5) * 320 * s; b.grounded = false; return; } }
+  let best = -1, bd = 1e9; const slop = pointer.touch ? 10 * s : 4 * s;
+  for (let i = 0; i < N; i++) { const k = kind[i]; if (k > TASSEL) continue;
+    const d = Math.hypot(px[i] - x, py[i] - y); if (d < nr[i] + slop && d < bd) { bd = d; best = i; } }
+  if (best >= 0) { pluck(best); return; }
+  if (onTag(x, y)) { px[tagBottom] += (Math.random() < 0.5 ? -1 : 1) * 3 * s; }
+}
+function pluck(i) {
+  const k = kind[i], x = px[i], y = py[i], vx = (px[i] - qx[i]) / HSTEP, vy = (py[i] - qy[i]) / HSTEP;
+  if (k === FO || k === FY) {
+    const b = new Body("flower", x, y, vx + (Math.random() - 0.5) * 100 * s, vy - Math.random() * 80 * s, R * 0.92, { o: k === FO, i: sprI[i] });
+    b.ang = rot[i]; bodies.push(b); spawnPetals(x, y, vx, vy, 3 + (Math.random() * 3 | 0));
+  } else {
+    for (let n = 0; n < (k === TASSEL ? 3 : 2); n++)
+      bodies.push(new Body("leaf", x, y, vx + (Math.random() - 0.5) * 120 * s, vy - Math.random() * 60 * s, 3 * s, (Math.random() * spr.leaf.length) | 0));
+  }
+  kind[i] = BARE; wt[i] = 1.4; refreshRadii(); qy[i] += 2.5 * s;
+  if (navigator.vibrate) { try { navigator.vibrate(12); } catch (e) {} }
+}
+function restring() {
+  kind.set(origKind);
+  for (let i = 0; i < N; i++) wt[i] = kind[i] === ANCHOR ? 0 : kind[i] === THREAD ? 1.6 : kind[i] === TBOT ? 0.45 : 1;
+  refreshRadii(); bodies = bodies.filter(b => b.k !== "flower"); wake();
+}
+
+canvas.addEventListener("pointerdown", e => {
+  pointer.touch = e.pointerType !== "mouse"; pointer.down = true; pointer.active = true;
+  pointer.x = pointer.sx = e.clientX; pointer.y = pointer.sy = e.clientY; pointer.st = performance.now();
+  handPrev = null; try { canvas.setPointerCapture(e.pointerId); } catch (_) {} wake();
+});
+canvas.addEventListener("pointermove", e => {
+  pointer.x = e.clientX; pointer.y = e.clientY;
+  if (e.pointerType === "mouse") { pointer.touch = false; pointer.active = true; } else pointer.active = pointer.down;
+  if (pointer.active) wake();
+});
+canvas.addEventListener("pointerup", e => {
+  const moved = Math.hypot(e.clientX - pointer.sx, e.clientY - pointer.sy), dt = performance.now() - pointer.st;
+  pointer.down = false; if (e.pointerType !== "mouse") pointer.active = false;
+  if (moved < 12 && dt < 400) {
+    const now = performance.now(), isTag = onTag(e.clientX, e.clientY);
+    if (isTag && lastTap.tag && now - lastTap.t < 380) { openEditor(); lastTap.t = 0; return; }
+    lastTap = { t: now, tag: isTag };
+    tapAt(e.clientX, e.clientY);
+  }
+});
+for (const ev of ["pointerleave", "pointercancel"]) canvas.addEventListener(ev, () => { pointer.active = false; pointer.down = false; });
+
+// ------------------------------------------------------------------ loop
+let running = false, last = 0, acc = 0, idle = 0;
+function wake() { idle = 0; if (!running) { running = true; last = performance.now(); acc = 0; requestAnimationFrame(frame); } }
+function frame(t) {
+  const dt = Math.min((t - last) / 1000, 0.05); last = t;
+  let cur = null, prev = null;
+  if (pointer.active) {
+    cur = [pointer.x, pointer.y]; prev = handPrev || cur;
+    const mv = Math.hypot(cur[0] - prev[0], cur[1] - prev[1]);
+    if (mv > 260 * s) { prev = cur; hv = [0, 0]; }
+    else { hv = [hv[0] * 0.5 + 0.5 * (cur[0] - prev[0]) / Math.max(dt, 1e-3), hv[1] * 0.5 + 0.5 * (cur[1] - prev[1]) / Math.max(dt, 1e-3)];
+      const sp = Math.hypot(hv[0], hv[1]), vmax = 2500 * s; if (sp > vmax) { hv[0] *= vmax / sp; hv[1] *= vmax / sp; } }
+  } else hv = [0, 0];
+  acc += dt; let n = 0; const total = Math.max(1, Math.round(acc / HSTEP));
+  while (acc >= HSTEP && n < 8) {
+    let a = null, b = null;
+    if (cur) { const f0 = n / total, f1 = Math.min(1, (n + 1) / total);
+      a = [prev[0] + (cur[0] - prev[0]) * f0, prev[1] + (cur[1] - prev[1]) * f0];
+      b = [prev[0] + (cur[0] - prev[0]) * f1, prev[1] + (cur[1] - prev[1]) * f1]; }
+    step(HSTEP, a, b, cur ? hv : null);
+    if (b) tagBrush(b[0], b[1], hv);
+    stepBodies(HSTEP, b ? b[0] : null, b ? b[1] : null, hv);
+    simTime += HSTEP; acc -= HSTEP; n++;
+  }
+  if (n === 8) acc = 0;
+  handPrev = cur;
+  render();
+  const busy = bodies.some(b => (b.k === "flower" ? !(b.grounded && b.vx === 0) : !b.landed || b.life < 47));
+  const moving = pointer.active && (Math.abs(hv[0]) + Math.abs(hv[1]) > 5);
+  if (kinetic() < 0.02 * s && !busy && !moving) idle += dt; else idle = 0;
+  if (idle > 1.2) { running = false; return; }
+  requestAnimationFrame(frame);
+}
+
+// ------------------------------------------------------------------ render
+function blit(sp, x, y, a, sc = 1) {
+  const c = Math.cos(a) * DPR * sc, sn = Math.sin(a) * DPR * sc;
+  ctx.setTransform(c, sn, -sn, c, x * DPR, y * DPR);
+  ctx.drawImage(sp.c, -sp.ox, -sp.oy, sp.c.lw, sp.c.lh);
+}
+function render() {
+  ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  tangents();
+  ctx.lineJoin = "round";
+  for (const chain of chains) {            // red-and-gold mauli thread
+    ctx.beginPath(); ctx.moveTo(px[chain[0]], py[chain[0]]);
+    for (let k = 1; k < chain.length; k++) ctx.lineTo(px[chain[k]], py[chain[k]]);
+    ctx.lineWidth = 1.6 * s; ctx.strokeStyle = "#c01c26"; ctx.setLineDash([]); ctx.stroke();
+    ctx.lineWidth = 0.6 * s; ctx.strokeStyle = "rgba(240,190,60,0.7)"; ctx.setLineDash([3 * s, 3 * s]); ctx.stroke();
+  }
+  ctx.setLineDash([]);
+  const D = Math.PI / 180;
+  for (let i = 0; i < N; i++) {             // leaves behind the flowers
+    const k = kind[i]; if (k !== LEAF && k !== TASSEL) continue;
+    const rel = th[i] - theta0[i], lag = clamp(-(px[i] - qx[i]) / HSTEP * 0.04, -25, 25) * D;
+    let dirs;
+    if (k === LEAF && Math.abs(Math.cos(theta0[i])) < 0.5) dirs = [th[i] - 62 * D + lag, th[i] + 62 * D + lag];
+    else if (k === LEAF) dirs = [60 * D + rel + lag, 120 * D + rel + lag];
+    else dirs = [th[i] - 28 * D + lag, th[i] + lag, th[i] + 28 * D + lag];
+    dirs.forEach((a, j) => { const L = spr.leaf[(i + j) % 5]; const c = Math.cos(a), sn = Math.sin(a);
+      ctx.setTransform(c * DPR, sn * DPR, -sn * DPR, c * DPR, px[i] * DPR, py[i] * DPR);
+      ctx.drawImage(L.c, -L.ox - R * 0.15, -L.oy, L.c.lw, L.c.lh); });
+  }
+  for (const i of pins) [140, 90, 40, 200, -20].forEach((a, j) => blit(spr.leaf[j % 5], px[i], py[i], a * D));
+  for (let i = 0; i < N; i++) {
+    const k = kind[i];
+    if (k === FO || k === FY) blit((k === FO ? spr.o : spr.y)[sprI[i]], px[i], py[i], rot[i] + (th[i] - theta0[i]) * 0.6 + spin[i]);
+    else if (k === TASSEL) blit(spr.o[sprI[i]], px[i], py[i], rot[i] + spin[i], 0.85);
+    else if (k === BARE) { ctx.setTransform(DPR, 0, 0, DPR, 0, 0); ctx.fillStyle = "#784614"; ctx.beginPath(); ctx.arc(px[i], py[i], 1.6 * s, 0, 7); ctx.fill(); }
+  }
+  for (const i of pins) {
+    blit(spr.big, px[i], py[i], 0);
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0); ctx.fillStyle = "#d6aa46"; ctx.strokeStyle = "#6e460a"; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.arc(px[i], py[i], 3.2 * s, 0, 7); ctx.fill(); ctx.stroke();
+  }
+  const f = tagFrame();
+  blit(tag, f.hx, f.hy, Math.atan2(f.uy, f.ux) - Math.PI / 2);
+  for (const b of bodies) {
+    let al = 1;
+    if (b.landed && b.k === "petal") al = clamp((14 - b.life) / 2, 0, 1);
+    if (b.landed && b.k === "leaf") al = clamp((45 - b.life) / 3, 0, 1);
+    if (al <= 0) continue;
+    ctx.globalAlpha = al;
+    if (b.k === "flower") {
+      const sp = (b.sp.o ? spr.o : spr.y)[b.sp.i];
+      if (b.squash > 0.01) {
+        ctx.setTransform(DPR, 0, 0, DPR, 0, 0); ctx.translate(b.x, b.y + b.r * b.squash);
+        ctx.scale(1 + b.squash * 0.6, 1 - b.squash); ctx.rotate(b.ang);
+        ctx.drawImage(sp.c, -sp.ox, -sp.oy, sp.c.lw, sp.c.lh);
+      } else blit(sp, b.x, b.y, b.ang);
+    } else if (b.k === "leaf") {
+      const L = spr.leaf[b.sp], c = Math.cos(b.ang), sn = Math.sin(b.ang);
+      ctx.setTransform(c * DPR, sn * DPR, -sn * DPR, c * DPR, b.x * DPR, b.y * DPR);
+      ctx.drawImage(L.c, -L.c.lw / 2, -L.oy, L.c.lw, L.c.lh);
+    } else blit(spr.petal[b.sp], b.x, b.y, b.ang);
+  }
+  ctx.globalAlpha = 1; ctx.setTransform(1, 0, 0, 1, 0, 0);
+}
+
+// ------------------------------------------------------------------ UI: hint, editor, share, install
+const $ = id => document.getElementById(id);
+let hintTimer = setTimeout(hideHint, 9000);
+function hideHint() { clearTimeout(hintTimer); $("hint").classList.add("gone"); }
+function toast(msg) { const t = $("toast"); t.textContent = msg; t.hidden = false; clearTimeout(toast.k); toast.k = setTimeout(() => { t.hidden = true; }, 2600); }
+
+function openEditor() { $("tag-text").value = tagText; $("editor").hidden = false; setTimeout(() => $("tag-text").focus(), 30); }
+function closeEditor() { $("editor").hidden = true; }
+function setTagText(t) {
+  tagText = (t || "").replace(/\r/g, "").split("\n").slice(0, 4).join("\n").trim() || DEFAULT_TEXT;
+  ls.set("tagText", tagText); rebuildTag(); px[tagBottom] += 3 * s; wake();
+}
+$("btn-edit").addEventListener("click", openEditor);
+$("btn-cancel").addEventListener("click", closeEditor);
+$("btn-reset-text").addEventListener("click", () => { $("tag-text").value = DEFAULT_TEXT; });
+$("editor-form").addEventListener("submit", e => { e.preventDefault(); setTagText($("tag-text").value); closeEditor(); toast("Tag updated"); });
+$("editor").addEventListener("pointerdown", e => { if (e.target.id === "editor") closeEditor(); });
+document.addEventListener("keydown", e => { if (e.key === "Escape" && !$("editor").hidden) closeEditor(); });
+$("btn-restring").addEventListener("click", () => { restring(); toast("Garland re-strung"); });
+
+const onPages = !STAMPED_SITE.startsWith("__");
+const siteUrl = onPages ? STAMPED_SITE : (location.origin + location.pathname);
+if (!STAMPED_REPO.startsWith("__")) $("repo-link").innerHTML = ` · <a href="${STAMPED_REPO}" target="_blank" rel="noopener">Source on GitHub</a>`;
+function shareLink() {
+  return tagText === DEFAULT_TEXT ? siteUrl : siteUrl + "?t=" + encodeURIComponent(tagText);
+}
+$("btn-share").addEventListener("click", async () => {
+  const url = shareLink();
+  const text = "A marigold garland for your screen. Pluck a genda phool and watch it fall. Happy Dussehra!";
+  if (navigator.share) { try { await navigator.share({ title: "Dussehra Garland", text, url }); return; } catch (e) { if (e && e.name === "AbortError") return; } }
+  try { await navigator.clipboard.writeText(url); toast("Link copied. Paste it anywhere."); }
+  catch (e) { toast(url); }
+});
+let installEvt = null;
+window.addEventListener("beforeinstallprompt", e => { e.preventDefault(); installEvt = e; $("btn-install").hidden = false; });
+$("btn-install").addEventListener("click", async () => { if (!installEvt) return; installEvt.prompt(); try { await installEvt.userChoice; } catch (e) {} installEvt = null; $("btn-install").hidden = true; });
+if ("serviceWorker" in navigator && onPages && window.top === window) {
+  window.addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => {}));
+}
+
+// ------------------------------------------------------------------ boot
+try { const q = new URLSearchParams(location.search).get("t"); tagText = (q && q.trim()) || ls.get("tagText") || DEFAULT_TEXT; } catch (e) {}
+build();
+wake();
+let lastW = W;
+window.addEventListener("resize", () => {
+  const nw = window.innerWidth, nh = window.innerHeight;
+  if (Math.abs(nw - lastW) > 40) { lastW = nw; build(); }
+  else { W = nw; H = nh; canvas.width = Math.round(W * DPR); canvas.height = Math.round(H * DPR); updateFloor(); }
+  wake();
+});
+if (document.fonts && document.fonts.load) document.fonts.load('20px "Tiro Devanagari Hindi"').then(() => { rebuildTag(); wake(); }).catch(() => {});
+document.addEventListener("visibilitychange", () => { if (!document.hidden) wake(); });
+// test hooks
+window.__garland = { tapAt, pluck, get N() { return N; }, get kind() { return kind; }, get px() { return px; }, get py() { return py; }, get bodies() { return bodies; }, pointer, wake };
+})();
+</script>
+
+</body>
+</html>

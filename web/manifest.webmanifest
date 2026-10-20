@@ -1,0 +1,16 @@
+{
+  "name": "Dussehra Garland",
+  "short_name": "Garland",
+  "description": "A marigold toran for your screen. Brush it, pluck a genda phool, write your own greeting.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "fullscreen",
+  "orientation": "any",
+  "background_color": "#170f2b",
+  "theme_color": "#170f2b",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
